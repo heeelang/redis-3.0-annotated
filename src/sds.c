@@ -236,6 +236,7 @@ sds sdsMakeRoomFor(sds s, size_t addlen) {
 
     // 获取 s 目前已占用空间的长度
     len = sdslen(s);
+    // HEL: sh 为以 s 作为 buf属性值的 sdshdr 对象
     sh = (void*) (s-(sizeof(struct sdshdr)));
 
     // s 最少需要的长度
@@ -250,12 +251,16 @@ sds sdsMakeRoomFor(sds s, size_t addlen) {
         // 否则，分配长度为目前长度加上 SDS_MAX_PREALLOC
         newlen += SDS_MAX_PREALLOC;
     // T = O(N)
+    // HEL
+    //  分配的空间大小不止是 结果sds 的空间大小(newlen)，而是包含 结果sds 的完整sdshdr 对象的空间大小(sizeof(sdshdr) + newlen +1 )
+    //  分配空间的同时，会将 sh 的属性 sh->len, sh->free, sh->buf 复制到 newsh对象里
     newsh = zrealloc(sh, sizeof(struct sdshdr)+newlen+1);
 
     // 内存不足，分配失败，返回
     if (newsh == NULL) return NULL;
 
     // 更新 sds 的空余长度
+    // 注意，这里并没有 set newsh->len 和 newsh->buf
     newsh->free = newlen - len;
 
     // 返回 sds
@@ -424,6 +429,15 @@ sds sdsgrowzero(sds s, size_t len) {
  *
  * After the call, the passed sds string is no longer valid and all the
  * references must be substituted with the new pointer returned by the call. */
+/**
+ * HEL
+ * 1. sdsMakeRoomFor(s, len)扩展空间，保证 sds 对应的 sdshdr 有足够的free space
+ *      1.1 首先判断 s 对应的sdshdr.free 够不够，够就返回
+ *      1.2 不够，就分配free足够的一个新sdshdr，并且回保留原sdshdr 的所有数据
+ * 2. 修改 sdshdr->sds
+ *          复制字符串内容 t 到 sds 的尾部
+ * 3. 修改 sdshdr->len, sdshdr->free
+ */
 sds sdscatlen(sds s, const void *t, size_t len) {
     
     struct sdshdr *sh;
@@ -441,6 +455,7 @@ sds sdscatlen(sds s, const void *t, size_t len) {
     // 复制 t 中的内容到字符串后部
     // T = O(N)
     sh = (void*) (s-(sizeof(struct sdshdr)));
+    // memcpy 的第一个参数是 s+ curlen，即原sds对应的字符串的尾部(这里的原sds是指重新分配空间后的sdshdr对应sds)
     memcpy(s+curlen, t, len);
 
     // 更新属性

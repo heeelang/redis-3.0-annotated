@@ -166,6 +166,8 @@ void *zrealloc(void *ptr, size_t size) {
     realptr = (char*)ptr-PREFIX_SIZE;
     oldsize = *((size_t*)realptr);
     newptr = realloc(realptr,size+PREFIX_SIZE);
+    // 如果realloc() 分配内存失败，返回值newptr为0， 命中if(!newptr)，调用 oom_handler()方法
+    // oom_handler() 方法就errlog，然后abort()
     if (!newptr) zmalloc_oom_handler(size);
 
     *((size_t*)newptr) = size;

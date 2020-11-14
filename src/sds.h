@@ -112,11 +112,23 @@ sds sdsnewlen(const void *init, size_t initlen);
  */
 sds sdsnew(const char *init);
 sds sdsempty(void);
+
 size_t sdslen(const sds s);
+
+/**
+ * sds duplicate
+*/
 sds sdsdup(const sds s);
+
 void sdsfree(sds s);
+
 size_t sdsavail(const sds s);
+
+/**
+ * 将s补充至len长，新增的内存都set为'\0'
+ */
 sds sdsgrowzero(sds s, size_t len);
+
 sds sdscatlen(sds s, const void *t, size_t len);
 
 /**
@@ -128,12 +140,12 @@ sds sdscat(sds s, const char *t);
 
 /**
  * 将 s 和 t 两个sds指向的字符串拼接起来，生存一个新的sdshdr对象，并返回对应的 sds 地址值
-*/
+ */
 sds sdscatsds(sds s, const sds t);
 
 /**
  *
-*/
+ */
 sds sdscpylen(sds s, const char *t, size_t len);
 sds sdscpy(sds s, const char *t);
 
@@ -155,8 +167,23 @@ sds *sdssplitlen(const char *s, int len, const char *sep, int seplen, int *count
 void sdsfreesplitres(sds *tokens, int count);
 void sdstolower(sds s);
 void sdstoupper(sds s);
+
+/**
+ * 将数字类型的value 转换成对应的字符串，返回对应字符串的sds对象
+ * @param value
+ * @return
+ */
 sds sdsfromlonglong(long long value);
+
+/**
+ * 以 represent的形式将 len长度的字符串p 追加到s 上
+ * @param s
+ * @param p
+ * @param len
+ * @return
+ */
 sds sdscatrepr(sds s, const char *p, size_t len);
+
 sds *sdssplitargs(const char *line, int *argc);
 sds sdsmapchars(sds s, const char *from, const char *to, size_t setlen);
 sds sdsjoin(char **argv, int argc, char *sep);
@@ -164,7 +191,19 @@ sds sdsjoin(char **argv, int argc, char *sep);
 /* Low level functions exposed to the user API */
 sds sdsMakeRoomFor(sds s, size_t addlen);
 void sdsIncrLen(sds s, int incr);
+
+/**
+ * 内存操作，复杂度为O(n)
+ * @param s
+ * @return
+ */
 sds sdsRemoveFreeSpace(sds s);
+
+/**
+ * 返回sds占用的内存字节数，实际是内存为整个sdshdr分配的字节数
+ * @param s
+ * @return sizeof(sdshdr) + sdshdr->len + 1 + sdshdr->free
+ */
 size_t sdsAllocSize(sds s);
 
 #endif

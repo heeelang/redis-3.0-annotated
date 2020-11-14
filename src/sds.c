@@ -572,6 +572,17 @@ sds sdscpy(sds s, const char *t) {
  *
  * The function returns the lenght of the null-terminated string
  * representation stored at 's'. */
+/**
+ * 这个函数比较有意思，就是一个 itoa 操作，目的是为了将一个数字转化成字符串。
+ *      LLSTR 最大可以表达21位的数字，所以LLSTR 的SIZE 为21
+ * 整体转换的过程
+ *      是从数字的低位到高位，通过中间变量p并存储在char * 中，
+ *      所以最后需要reverse the string
+ * 每一位的转换过程
+ *     将数字 value 对10 取余（结果为0-9）,
+ *     将取余的结果 与 字符常量 '0' 相加，得到余数对应的数字常量
+ *     然后将 value 除以10，进行下一次迭代
+ */
 #define SDS_LLSTR_SIZE 21
 int sdsll2str(char *s, long long value) {
     char *p, aux;
@@ -604,6 +615,9 @@ int sdsll2str(char *s, long long value) {
     return l;
 }
 
+/**
+ * 同上一个函数
+ */
 /* Identical sdsll2str(), but for unsigned long long type. */
 int sdsull2str(char *s, unsigned long long v) {
     char *p, aux;

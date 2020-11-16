@@ -191,6 +191,10 @@ list *listAddNodeTail(list *list, void *value)
  * 如果 after 为 1 ，将新节点插入到 old_node 之后。
  *
  * T = O(1)
+ *
+ * HEL: 这个操作有点意思，
+ *  新建node是一段逻辑，
+ *  基于新建完成的node修改node->prev, node->next 是一段独立的逻辑，以node为视角
  */
 list *listInsertNode(list *list, listNode *old_node, void *value, int after) {
     listNode *node;
